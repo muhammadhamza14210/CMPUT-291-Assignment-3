@@ -7,27 +7,27 @@ import timeit
 
 def main():
     global conn 
-    conn = sqlite3.connect('A3Small.db')
     global c
+
+    # connect to small db 
+    conn = sqlite3.connect('A3Small.db')
     c = conn.cursor()
+    
+    # creates tables
     schema = """
-                        
                         CREATE TABLE "Customers_Undefined" (
                         "customer_id" TEXT,
                         "customer_postal_code" INTEGER
-                        
                         );
 
                         CREATE TABLE "Sellers_Undefined" (
                         "seller_id" TEXT,
                         "seller_postal_code" INTEGER
-                        
                         );
 
                         CREATE TABLE "Orders_Undefined" (
                         "order_id" TEXT,
                         "customer_id" TEXT
-                        
                         );
 
                         CREATE TABLE "Order_items_Undefined" (
@@ -35,32 +35,11 @@ def main():
                         "order_item_id" INTEGER,
                         "product_id" TEXT,
                         "seller_id" TEXT
-                        
-                        
                         );
                 """
     c.executescript(schema)
-        
-        
-
-
-        
             
-            
-            # Query to populate Customers_Undefined
-            # -----
-
-            
-            # Query to populate Sellers_Undefined
-            # ----
-            
-            
-            # Query to populate Orders_Undefined
-            # ----
-            
-            # Query to populate Order_items_Undefined
-            # ----
-            
+    # Populate tables
     populateUndefined = """
                             INSERT INTO Customers_Undefined SELECT
                             customer_id,
@@ -84,46 +63,39 @@ def main():
                             seller_id
                             FROM Order_items;
                             """
-            # Then go on
     c.executescript(populateUndefined)
     conn.commit()
     
-    
-    # uninformed()
+    # Query uninformed 
     runtimeUninformedSmall = timeit.timeit('uninformed()', globals=globals(), number=50)
     print(f"Runtime of uniformed SMALL: {runtimeUninformedSmall} seconds")
     
-    
-
     conn.close()
-    
-    
     conn = sqlite3.connect('A3Small.db')
-  
     c = conn.cursor()
-    # selfOptimized()
+    
+    # query uninformed
     runtimeSelfOptimizedSmall = timeit.timeit('selfOptimized()', globals=globals(), number=50)
     print(f"Runtime of Self-Optimized SMALL: {runtimeSelfOptimizedSmall} seconds")
     
-    # User optimized close and re-open
-    
     conn.close()
     conn = sqlite3.connect('A3Small.db')
     c = conn.cursor()
     
-    
+    # Create indexes for the user-optimized approach for the small database  
     c.execute("CREATE INDEX idx_customers_postal_code ON Customers(customer_postal_code);")
     c.execute("CREATE INDEX idx_orders_customer_id ON Orders(customer_id);")
     c.execute("CREATE INDEX idx_orders_order_id ON Orders(order_id);")
     c.execute("CREATE INDEX idx_order_items_order_id ON Order_items(order_id);")
     c.execute("CREATE INDEX idx_order_items_order_item_id ON Order_items(order_item_id);")
+   
+    # query user-optimized  
     runtimeUserOptimizedSmall = timeit.timeit('userOptimized()', globals=globals(), number=50)
     print(f"Runtime of User-Optimized SMALL: {runtimeUserOptimizedSmall} seconds")
     
     # Closing and reclosing for
     conn.commit()
     
-
     # # End and drop all the tables here for SMALL then close the database
     c.execute("DROP TABLE Customers_Undefined;")
     c.execute("DROP TABLE Sellers_Undefined;")
@@ -160,7 +132,6 @@ def main():
     conn.close()
     conn = sqlite3.connect('A3Medium.db')
     c = conn.cursor()
-    
     
     c.execute("CREATE INDEX idx_customers_postal_code ON Customers(customer_postal_code);")
     c.execute("CREATE INDEX idx_orders_customer_id ON Orders(customer_id);")
