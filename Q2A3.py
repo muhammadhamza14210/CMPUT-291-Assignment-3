@@ -13,14 +13,16 @@ def main():
     conn = sqlite3.connect('A3Small.db')
     c = conn.cursor()
     
-    
-    orderSizeView = """
-    CREATE VIEW OrderSize AS
-    SELECT order_id AS oid, COUNT(*) AS size
-    FROM Order_items
-    GROUP BY order_id
-    """
-    c.execute(orderSizeView)
+    # view schema 
+    orderSize = """
+                        CREATE VIEW OrderSize AS
+                        SELECT order_id AS oid, COUNT(*) AS size
+                        FROM Order_items
+                        GROUP BY order_id
+                    """
+                    
+    # create view for small database
+    c.execute(orderSize)
 
     # creates tables
     schema = """
@@ -123,7 +125,10 @@ def main():
     c.executescript(schema)
     c.executescript(populateUndefined)
     conn.commit()
-    
+   
+    # create view for medium database
+    c.execute(orderSize)
+     
     runtimeUninformedMedium= timeit.timeit('uninformed()', globals=globals(), number=50)
     print(f"Runtime of uniformed MEDIUM: {runtimeUninformedMedium} seconds")
     
@@ -167,10 +172,14 @@ def main():
     conn.close()
     conn = sqlite3.connect('A3Large.db')
     c = conn.cursor()
+    
     # Populate the medium database with the undefined stuff to run
     c.executescript(schema)
     c.executescript(populateUndefined)
     conn.commit()
+    
+    # create view for medium database
+    c.execute(orderSize)
     
     # Large database uninformed
     runtimeUninformedLarge= timeit.timeit('uninformed()', globals=globals(), number=50)
@@ -244,13 +253,18 @@ def main():
 # Uninformed
 def uninformed():
     i = 0
-    # Undefining the primary & foreign keys of all tables
+# Undefining the primary & foreign keys of all tables
     c.execute('''PRAGMA foreign_keys = OFF;''')
+    
+    
     
     # Disabling the creating of SQLite's auto indexing
     c.execute('''PRAGMA automatic_index = FALSE;''')
     
-    # Grab all the postal code from 10,000 customers
+    
+    # !! EXECUTE THE UNDEFINED SCRIPTS HERE LATER THEN USE THE UNDEFINED ONES
+    
+        # Grab all the postal code from 10,000 customers
     c.execute("SELECT customer_postal_code FROM Customers_Undefined")
     
     postal_codes = c.fetchall()
@@ -267,19 +281,21 @@ def uninformed():
             SELECT customer_id
             FROM Customers_Undefined
             WHERE customer_postal_code = ?
-        )
+            )
         AND order_id IN (
             SELECT oid
             FROM OrderSize
-            WHERE size > (SELECT AVG(size) FROM OrderSize)
-        );
+            WHERE size > (
+                SELECT AVG(size)
+                FROM OrderSize
+            )
+        )
     """, (random_postal_code,)
     )
     i+=1
     
     # result = c.fetchone()
     # print(result)
-
         
 
 
@@ -316,18 +332,20 @@ def selfOptimized():
     c.execute(
         """
             SELECT COUNT(*)
-FROM Orders
-WHERE customer_id IN (
-    SELECT customer_id
-    FROM Customers_Undefined
-    WHERE customer_postal_code = ?
-)
-AND order_id IN (
-    SELECT order_id
-    FROM Order_items
-    GROUP BY order_id
-    HAVING COUNT(*) > 1
-);
+            FROM Orders
+            WHERE customer_id IN (
+                SELECT customer_id
+                FROM Customers_Undefined
+                WHERE customer_postal_code = ?
+            )
+            AND order_id IN (
+                SELECT oid
+                FROM OrderSize
+                WHERE size > (
+                    SELECT AVG(size)
+                    FROM OrderSize
+                )
+            )
 
     """, (random_postal_code,)
     )
@@ -358,18 +376,20 @@ def userOptimized():
     c.execute(
             """
                SELECT COUNT(*)
-FROM Orders
-WHERE customer_id IN (
-    SELECT customer_id
-    FROM Customers_Undefined
-    WHERE customer_postal_code = ?
-)
-AND order_id IN (
-    SELECT order_id
-    FROM Order_items
-    GROUP BY order_id
-    HAVING COUNT(*) > 1
-);
+                FROM Orders
+                WHERE customer_id IN (
+                    SELECT customer_id
+                    FROM Customers_Undefined
+                    WHERE customer_postal_code = ?
+                )
+                AND order_id IN (
+                    SELECT oid
+                    FROM OrderSize
+                    WHERE size > (
+                        SELECT AVG(size)
+                        FROM OrderSize
+                    )
+                )
 
         """, (random_postal_code,)
         )
@@ -378,7 +398,4 @@ AND order_id IN (
     
     i += 1
         
-
-# Dropping the tables at the veryyyy end
-
 main()
