@@ -1,3 +1,4 @@
+
 import sqlite3
 import matplotlib.pyplot as plt
 import random
@@ -20,17 +21,14 @@ def main():
                         "customer_id" TEXT,
                         "customer_postal_code" INTEGER
                         );
-
                         CREATE TABLE IF NOT EXISTS "Sellers_Undefined" (
                         "seller_id" TEXT,
                         "seller_postal_code" INTEGER
                         );
-
                         CREATE TABLE IF NOT EXISTS "Orders_Undefined" (
                         "order_id" TEXT,
                         "customer_id" TEXT
                         );
-
                         CREATE TABLE IF NOT EXISTS "Order_items_Undefined" (
                         "order_id" TEXT,
                         "order_item_id" INTEGER,
@@ -105,6 +103,7 @@ def main():
     c.execute("DROP INDEX idx_orders_order_id;")
     c.execute("DROP INDEX idx_order_items_order_id ;")
     c.execute("DROP INDEX idx_order_items_order_item_id ;")
+    
     
     conn.close()
     
@@ -217,9 +216,9 @@ def main():
     
     # Plotting
     databaseSizes = ['smallDB', 'mediumDB', 'LargeDB']
-    runtimeUninformed = [runtimeUninformedSmall, runtimeUninformedMedium, runtimeSelfOptimizedLarge]
-    runtimeSelfOptimized = [runtimeSelfOptimizedSmall, runtimeSelfOptimizedMedium, runtimeSelfOptimizedLarge]
-    runtimeUserOptimized = [runtimeUserOptimizedSmall, runtimeUserOptimizedMedium, runtimeUserOptimizedLarge]
+    runtimeUninformed = [runtimeUninformedSmall/50, runtimeUninformedMedium/50, runtimeSelfOptimizedLarge/50]
+    runtimeSelfOptimized = [runtimeSelfOptimizedSmall/50, runtimeSelfOptimizedMedium/50, runtimeSelfOptimizedLarge/50]
+    runtimeUserOptimized = [runtimeUserOptimizedSmall/50, runtimeUserOptimizedMedium/50, runtimeUserOptimizedLarge/50]
     
     # Stack bar chart
     plt.bar(databaseSizes, runtimeUninformed, label='Uninformed')
@@ -227,7 +226,7 @@ def main():
     plt.bar(databaseSizes, runtimeUserOptimized, bottom=[sum(x) for x in zip(runtimeUninformed, runtimeSelfOptimized)], label='User-Optimized')
     plt.xlabel('Database sizes')
     plt.ylabel('Runtime (s)')
-    plt.title('Query 1 (runtime in ms and s)')
+    plt.title('Query 3 Average Runtime (Divided by 50)')
     # add legend
     plt.legend()
 
@@ -265,37 +264,27 @@ def uninformed():
     # print("")
     c.execute(
         """
-        SELECT COUNT(DISTINCT order_id)
-        FROM Order_items
-        WHERE order_id IN (
-            SELECT order_id
-            FROM Orders_Undefined
-            WHERE customer_id IN (
-                SELECT customer_id
-                FROM Customers_Undefined
-                WHERE customer_postal_code = ?
-            )
-        )
-        GROUP BY order_id
-        HAVING COUNT(*) > (
-            SELECT AVG(size)
-            FROM (
-                SELECT COUNT(*) AS size
-                FROM Order_items
-                WHERE order_id IN (
-                    SELECT order_id
-                    FROM Orders_Undefined
-                    WHERE customer_id IN (
-                        SELECT customer_id
-                        FROM Customers_Undefined
-                        WHERE customer_postal_code = ?
-                    )
-                )
-                GROUP BY order_id
-            ) AS OrderSize
-        )
-
-    """, (random_postal_code,random_postal_code)
+  SELECT COUNT(*)
+FROM Orders_Undefined
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM Customers_Undefined
+    WHERE customer_postal_code = ?
+)
+AND order_id IN (
+    SELECT order_id
+    FROM Order_items_Undefined
+    GROUP BY order_id
+    HAVING COUNT(*) > (
+        SELECT AVG(item_count)
+        FROM (
+            SELECT COUNT(*) as item_count
+            FROM Order_items_Undefined
+            GROUP BY order_id
+        ) as item_counts
+    )
+)
+    """, (random_postal_code,)
     )
     i+=1
     
@@ -336,37 +325,27 @@ def selfOptimized():
 
     c.execute(
         """
-        SELECT COUNT(DISTINCT order_id)
-        FROM Order_items
-        WHERE order_id IN (
-            SELECT order_id
-            FROM Orders_Undefined
-            WHERE customer_id IN (
-                SELECT customer_id
-                FROM Customers_Undefined
-                WHERE customer_postal_code = ?
-            )
-        )
-        GROUP BY order_id
-        HAVING COUNT(*) > (
-            SELECT AVG(size)
-            FROM (
-                SELECT COUNT(*) AS size
-                FROM Order_items
-                WHERE order_id IN (
-                    SELECT order_id
-                    FROM Orders_Undefined
-                    WHERE customer_id IN (
-                        SELECT customer_id
-                        FROM Customers_Undefined
-                        WHERE customer_postal_code = ?
-                    )
-                )
-                GROUP BY order_id
-            ) AS OrderSize
-        )
-
-    """, (random_postal_code,random_postal_code)
+       SELECT COUNT(*)
+FROM Orders
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM Customers
+    WHERE customer_postal_code = ?
+)
+AND order_id IN (
+    SELECT order_id
+    FROM Order_items
+    GROUP BY order_id
+    HAVING COUNT(*) > (
+        SELECT AVG(item_count)
+        FROM (
+            SELECT COUNT(*) as item_count
+            FROM Order_items
+            GROUP BY order_id
+        ) as item_counts
+    )
+)
+    """, (random_postal_code,)
     )
     i += 1
     # result = c2.fetchone()
@@ -394,37 +373,27 @@ def userOptimized():
 
     c.execute(
         """
-        SELECT COUNT(DISTINCT order_id)
-        FROM Order_items
-        WHERE order_id IN (
-            SELECT order_id
-            FROM Orders_Undefined
-            WHERE customer_id IN (
-                SELECT customer_id
-                FROM Customers_Undefined
-                WHERE customer_postal_code = ?
-            )
-        )
-        GROUP BY order_id
-        HAVING COUNT(*) > (
-            SELECT AVG(size)
-            FROM (
-                SELECT COUNT(*) AS size
-                FROM Order_items
-                WHERE order_id IN (
-                    SELECT order_id
-                    FROM Orders_Undefined
-                    WHERE customer_id IN (
-                        SELECT customer_id
-                        FROM Customers_Undefined
-                        WHERE customer_postal_code = ?
-                    )
-                )
-                GROUP BY order_id
-            ) AS OrderSize
-        )
-
-    """, (random_postal_code,random_postal_code)
+               SELECT COUNT(*)
+FROM Orders
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM Customers
+    WHERE customer_postal_code = ?
+)
+AND order_id IN (
+    SELECT order_id
+    FROM Order_items
+    GROUP BY order_id
+    HAVING COUNT(*) > (
+        SELECT AVG(item_count)
+        FROM (
+            SELECT COUNT(*) as item_count
+            FROM Order_items
+            GROUP BY order_id
+        ) as item_counts
+    )
+)
+    """, (random_postal_code,)
     )
         # result = c2.fetchone()
         # print(result)
@@ -432,3 +401,4 @@ def userOptimized():
     i += 1
         
 main()
+
