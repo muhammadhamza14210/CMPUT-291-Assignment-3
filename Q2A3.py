@@ -15,7 +15,7 @@ def main():
     
     # view schema 
     orderSize = """
-                        CREATE VIEW OrderSize AS
+                        CREATE VIEW IF NOT EXISTS OrderSize AS
                         SELECT order_id AS oid, COUNT(*) AS size
                         FROM Order_items
                         GROUP BY order_id
@@ -26,22 +26,22 @@ def main():
 
     # creates tables
     schema = """
-                        CREATE TABLE "Customers_Undefined" (
+                        CREATE TABLE IF NOT EXISTS "Customers_Undefined" (
                         "customer_id" TEXT,
                         "customer_postal_code" INTEGER
                         );
 
-                        CREATE TABLE "Sellers_Undefined" (
+                        CREATE TABLE IF NOT EXISTS "Sellers_Undefined" (
                         "seller_id" TEXT,
                         "seller_postal_code" INTEGER
                         );
 
-                        CREATE TABLE "Orders_Undefined" (
+                        CREATE TABLE IF NOT EXISTS "Orders_Undefined" (
                         "order_id" TEXT,
                         "customer_id" TEXT
                         );
 
-                        CREATE TABLE "Order_items_Undefined" (
+                        CREATE TABLE IF NOT EXISTS "Order_items_Undefined" (
                         "order_id" TEXT,
                         "order_item_id" INTEGER,
                         "product_id" TEXT,
@@ -94,11 +94,11 @@ def main():
     c = conn.cursor()
     
     # Create indexes for the user-optimized approach for the small database  
-    c.execute("CREATE INDEX idx_customers_postal_code ON Customers(customer_postal_code);")
-    c.execute("CREATE INDEX idx_orders_customer_id ON Orders(customer_id);")
-    c.execute("CREATE INDEX idx_orders_order_id ON Orders(order_id);")
-    c.execute("CREATE INDEX idx_order_items_order_id ON Order_items(order_id);")
-    c.execute("CREATE INDEX idx_order_items_order_item_id ON Order_items(order_item_id);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_customers_postal_code ON Customers(customer_postal_code);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_orders_customer_id ON Orders(customer_id);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_orders_order_id ON Orders(order_id);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON Order_items(order_id);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_order_items_order_item_id ON Order_items(order_item_id);")
    
     runtimeUserOptimizedSmall = timeit.timeit('userOptimized()', globals=globals(), number=50)
     print(f"Runtime of User-Optimized SMALL: {runtimeUserOptimizedSmall} seconds")
@@ -109,7 +109,7 @@ def main():
     c.execute("DROP TABLE Customers_Undefined;")
     c.execute("DROP TABLE Sellers_Undefined;")
     c.execute("DROP TABLE Orders_Undefined;")
-    c.execute(" DROP TABLE Order_items_Undefined;")
+    c.execute("DROP TABLE Order_items_Undefined;")
     c.execute("DROP INDEX idx_customers_postal_code ;")
     c.execute("DROP INDEX idx_orders_customer_id;")
     c.execute("DROP INDEX idx_orders_order_id;")
@@ -145,11 +145,11 @@ def main():
     conn = sqlite3.connect('A3Medium.db')
     c = conn.cursor()
     
-    c.execute("CREATE INDEX idx_customers_postal_code ON Customers(customer_postal_code);")
-    c.execute("CREATE INDEX idx_orders_customer_id ON Orders(customer_id);")
-    c.execute("CREATE INDEX idx_orders_order_id ON Orders(order_id);")
-    c.execute("CREATE INDEX idx_order_items_order_id ON Order_items(order_id);")
-    c.execute("CREATE INDEX idx_order_items_order_item_id ON Order_items(order_item_id);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_customers_postal_code ON Customers(customer_postal_code);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_orders_customer_id ON Orders(customer_id);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_orders_order_id ON Orders(order_id);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON Order_items(order_id);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_order_items_order_item_id ON Order_items(order_item_id);")
 
     runtimeUserOptimizedMedium = timeit.timeit('userOptimized()', globals=globals(), number=50)
     print(f"Runtime of User-Optimized MEDIUM: {runtimeUserOptimizedMedium} seconds")
@@ -162,7 +162,7 @@ def main():
     c.execute("DROP TABLE Customers_Undefined;")
     c.execute("DROP TABLE Sellers_Undefined;")
     c.execute("DROP TABLE Orders_Undefined;")
-    c.execute(" DROP TABLE Order_items_Undefined;")
+    c.execute("DROP TABLE Order_items_Undefined;")
     c.execute("DROP INDEX idx_customers_postal_code ;")
     c.execute("DROP INDEX idx_orders_customer_id;")
     c.execute("DROP INDEX idx_orders_order_id;")
@@ -200,11 +200,11 @@ def main():
     c = conn.cursor()
     
     # Indexes for LARGE
-    c.execute("CREATE INDEX idx_customers_postal_code ON Customers(customer_postal_code);")
-    c.execute("CREATE INDEX idx_orders_customer_id ON Orders(customer_id);")
-    c.execute("CREATE INDEX idx_orders_order_id ON Orders(order_id);")
-    c.execute("CREATE INDEX idx_order_items_order_id ON Order_items(order_id);")
-    c.execute("CREATE INDEX idx_order_items_order_item_id ON Order_items(order_item_id);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_customers_postal_code ON Customers(customer_postal_code);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_orders_customer_id ON Orders(customer_id);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_orders_order_id ON Orders(order_id);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON Order_items(order_id);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_order_items_order_item_id ON Order_items(order_item_id);")
     
     
     runtimeUserOptimizedLarge = timeit.timeit('userOptimized()', globals=globals(), number=50)
@@ -217,7 +217,7 @@ def main():
     c.execute("DROP TABLE Customers_Undefined;")
     c.execute("DROP TABLE Sellers_Undefined;")
     c.execute("DROP TABLE Orders_Undefined;")
-    c.execute(" DROP TABLE Order_items_Undefined;")
+    c.execute("DROP TABLE Order_items_Undefined;")
     c.execute("DROP INDEX idx_customers_postal_code ;")
     c.execute("DROP INDEX idx_orders_customer_id;")
     c.execute("DROP INDEX idx_orders_order_id;")
