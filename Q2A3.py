@@ -237,7 +237,7 @@ def main():
     plt.bar(databaseSizes, runtimeUserOptimized, bottom=[sum(x) for x in zip(runtimeUninformed, runtimeSelfOptimized)], label='User-Optimized')
     plt.xlabel('Database sizes')
     plt.ylabel('Runtime (s)')
-    plt.title('Query 1 (runtime in ms and s)')
+    plt.title('Query 2 (runtime in ms and s)')
     # add legend
     plt.legend()
 
