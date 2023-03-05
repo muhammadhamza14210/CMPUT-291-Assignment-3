@@ -19,17 +19,14 @@ def main():
                         "customer_id" TEXT,
                         "customer_postal_code" INTEGER
                         );
-
                         CREATE TABLE "Sellers_Undefined" (
                         "seller_id" TEXT,
                         "seller_postal_code" INTEGER
                         );
-
                         CREATE TABLE "Orders_Undefined" (
                         "order_id" TEXT,
                         "customer_id" TEXT
                         );
-
                         CREATE TABLE "Order_items_Undefined" (
                         "order_id" TEXT,
                         "order_item_id" INTEGER,
@@ -220,7 +217,7 @@ def main():
     plt.bar(databaseSizes, runtimeUserOptimized, bottom=[sum(x) for x in zip(runtimeUninformed, runtimeSelfOptimized)], label='User-Optimized')
     plt.xlabel('Database sizes')
     plt.ylabel('Runtime (s)')
-    plt.title('Query 1 (runtime in ms and s)')
+    plt.title('Query 1 Average runtime in Seconds(as a floating point number)')
     # add legend
     plt.legend()
 
@@ -316,7 +313,7 @@ def selfOptimized():
 FROM Orders
 WHERE customer_id IN (
     SELECT customer_id
-    FROM Customers_Undefined
+    FROM Customers
     WHERE customer_postal_code = ?
 )
 AND order_id IN (
@@ -325,7 +322,6 @@ AND order_id IN (
     GROUP BY order_id
     HAVING COUNT(*) > 1
 );
-
     """, (random_postal_code,)
     )
     i += 1
@@ -358,7 +354,7 @@ def userOptimized():
 FROM Orders
 WHERE customer_id IN (
     SELECT customer_id
-    FROM Customers_Undefined
+    FROM Customers
     WHERE customer_postal_code = ?
 )
 AND order_id IN (
@@ -367,7 +363,6 @@ AND order_id IN (
     GROUP BY order_id
     HAVING COUNT(*) > 1
 );
-
         """, (random_postal_code,)
         )
         # result = c2.fetchone()
