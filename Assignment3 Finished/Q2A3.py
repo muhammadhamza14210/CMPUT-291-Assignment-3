@@ -371,7 +371,7 @@ def userOptimized():
     # Undefining the primary & foreign keys of all tables
     c.execute('''PRAGMA foreign_keys = ON;''')
         # Disabling the creating of SQLite's auto indexing
-    c.execute('''PRAGMA automatic_index = TRUE;''')
+    c.execute('''PRAGMA automatic_index = FALSE;''')
     
     
     c.execute("SELECT customer_postal_code FROM Customers")
