@@ -323,7 +323,7 @@ def userOptimized():
     
     
     # Disabling the creating of SQLite's auto indexing
-    c.execute('''PRAGMA automatic_index = TRUE;''')
+    c.execute('''PRAGMA automatic_index = FALSE;''')
     
 
     
