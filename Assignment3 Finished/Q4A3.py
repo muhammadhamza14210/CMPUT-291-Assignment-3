@@ -220,9 +220,9 @@ def main():
     
      # Plotting
     databaseSizes = ['smallDB', 'mediumDB', 'LargeDB']
-    runtimeUninformed = [runtimeUninformedSmall/50, runtimeUninformedMedium/50, runtimeUninformedLarge/50]
-    runtimeSelfOptimized = [runtimeSelfOptimizedSmall/50, runtimeSelfOptimizedMedium/50, runtimeSelfOptimizedLarge/50]
-    runtimeUserOptimized = [runtimeUserOptimizedSmall/50, runtimeUserOptimizedMedium/50, runtimeUserOptimizedLarge/50]
+    runtimeUninformed = [runtimeUninformedSmall, runtimeUninformedMedium, runtimeUninformedLarge]
+    runtimeSelfOptimized = [runtimeSelfOptimizedSmall, runtimeSelfOptimizedMedium, runtimeSelfOptimizedLarge]
+    runtimeUserOptimized = [runtimeUserOptimizedSmall, runtimeUserOptimizedMedium, runtimeUserOptimizedLarge]
 
     # bar width
     width = 0.2
